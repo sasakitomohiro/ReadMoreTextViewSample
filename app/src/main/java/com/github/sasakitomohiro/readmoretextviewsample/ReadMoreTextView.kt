@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Canvas
 import android.text.SpannableStringBuilder
 import android.text.Spanned
+import android.text.method.LinkMovementMethod
 import android.text.style.ClickableSpan
 import android.util.AttributeSet
 import android.view.View
@@ -26,15 +27,15 @@ class ReadMoreTextView @JvmOverloads constructor(
     private var isCollapsed = true
 
     override fun setText(text: CharSequence?, type: BufferType?) {
-        fullText = text.toString()
         if (isCollapsed) {
-            trimmedText = setCollapseSpan(fullText.substring(0, collapseTextCount))
-
+            fullText = text.toString()
+            trimmedText = fullText.substring(0, collapseTextCount)
         }
-        super.setText(if (isCollapsed) trimmedText else fullText, type)
+        super.setText(if (isCollapsed) setCollapseSpan(trimmedText) else fullText, type)
+        if (isCollapsed) movementMethod = LinkMovementMethod.getInstance()
     }
 
-    private fun setCollapseSpan(text: String): String {
+    private fun setCollapseSpan(text: String): SpannableStringBuilder {
         val spannableStringBuilder =
             SpannableStringBuilder(text, 0, text.length).append(readMoreText)
         spannableStringBuilder
@@ -49,7 +50,7 @@ class ReadMoreTextView @JvmOverloads constructor(
                 text.length + readMoreText.length,
                 Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
             )
-        return spannableStringBuilder.toString()
+        return spannableStringBuilder
     }
 
     fun setCollapseLines(lines: Int) {
