@@ -1,7 +1,6 @@
 package com.github.sasakitomohiro.readmoretextviewsample
 
 import android.content.Context
-import android.graphics.Canvas
 import android.text.SpannableStringBuilder
 import android.text.Spanned
 import android.text.method.LinkMovementMethod
@@ -22,17 +21,14 @@ class ReadMoreTextView @JvmOverloads constructor(
     private var fullText = ""
     private var trimmedText = ""
     private var collapseTextCount = 150
-    private var collapseLines = Integer.MAX_VALUE
     private var readMoreText = "Read More"
-    private var isCollapsed = true
+    private var isCollapsed = false
 
     override fun setText(text: CharSequence?, type: BufferType?) {
         if (isCollapsed) {
-            fullText = text.toString()
-            trimmedText = fullText.substring(0, collapseTextCount)
+            trimmedText = text.toString().substring(0, collapseTextCount) + "…"
         }
-        super.setText(if (isCollapsed) setCollapseSpan(trimmedText) else fullText, type)
-        if (isCollapsed) movementMethod = LinkMovementMethod.getInstance()
+        super.setText(if (isCollapsed) setCollapseSpan(trimmedText) else text, type)
     }
 
     private fun setCollapseSpan(text: String): SpannableStringBuilder {
@@ -53,8 +49,12 @@ class ReadMoreTextView @JvmOverloads constructor(
         return spannableStringBuilder
     }
 
-    fun setCollapseLines(lines: Int) {
-        collapseLines = lines
+    fun collapse() {
+        if (isCollapsed) return
+        isCollapsed = true
+        fullText = text.toString()
+        text = fullText
+        movementMethod = LinkMovementMethod.getInstance()
     }
 
     fun setCollapseTextCount(count: Int) {
@@ -63,10 +63,5 @@ class ReadMoreTextView @JvmOverloads constructor(
 
     fun setReadMoreText(text: String) {
         readMoreText = text
-    }
-
-    fun onClickExpand() {
-        isCollapsed = false
-        maxLines = Integer.MAX_VALUE
     }
 }
